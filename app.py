@@ -4,13 +4,16 @@ import numpy as np
 import joblib
 from skimage.color import rgb2lab
 import colorsys
+import os
 
 app = Flask(__name__)
 CORS(app)  # ✅ Allow frontend JS to access
 
+# ✅ Load model and scaler
 model = joblib.load("model.pkl")
 scaler = joblib.load("scaler.pkl")
 
+# ✅ Feature extraction function
 def extract_features(rgb):
     rgb_scaled = np.array(rgb) / 255.0
     hsv = colorsys.rgb_to_hsv(*rgb_scaled)
@@ -22,16 +25,30 @@ def extract_features(rgb):
 
     return np.array([[b_lab, log_hue, log_green]])
 
+# ✅ Health check route (for browser or Render checks)
+@app.route("/", methods=["GET"])
+def home():
+    return "Shelf-life predictor backend is up!", 200
+
+# ✅ Prediction endpoint
 @app.route("/predict", methods=["POST"])
 def predict():
-    data = request.get_json()
-    rgb = data["rgb"]
-    features = extract_features(rgb)
-    features_scaled = scaler.transform(features)
-    prediction = model.predict(features_scaled)
+    try:
+        data = request.get_json()
+        if not data or "rgb" not in data:
+            return jsonify({"error": "Missing 'rgb' in request"}), 400
 
-    # ✅ Ensure return type is JSON serializable
-    return jsonify({"prediction": int(prediction[0])})
+        rgb = data["rgb"]
+        features = extract_features(rgb)
+        features_scaled = scaler.transform(features)
+        prediction = model.predict(features_scaled)
+
+        return jsonify({"prediction": int(prediction[0])})
+    except Exception as e:
+        print("❌ Error during prediction:", str(e))
+        return jsonify({"error": "Internal server error"}), 500
+
+# ✅ Run server (Render-compatible)
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
-
+    port = int(os.environ.get("PORT", 10000))  # Render sets PORT env var
+    app.run(host="0.0.0.0", port=port)
