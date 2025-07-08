@@ -55,11 +55,15 @@ def predict():
         features = extract_features(rgb)
         features_scaled = scaler.transform(features)
         prediction = model.predict(features_scaled)
-        print(f"Extracted features - B: {b_lab}, Hue: {hue_transformed}, Green: {green_transformed}")
+
+        # Optional: print the scaled input
+        print(f"Scaled features: {features_scaled}")
+
         return jsonify({"prediction": int(prediction[0])})
     except Exception as e:
         print("❌ Error during prediction:", str(e))
         return jsonify({"error": "Internal server error"}), 500
+
 
 # ✅ Run server
 if __name__ == "__main__":
