@@ -26,9 +26,11 @@ def extract_features(rgb):
     return np.array([[b_lab, log_hue, log_green]])
 
 # ✅ Health check route (for browser or Render checks)
+
 @app.route("/", methods=["GET"])
 def home():
-    return "Shelf-life predictor backend is up!", 200
+    return "✅ Shelf-life predictor backend is running!", 200
+
 
 # ✅ Prediction endpoint
 @app.route("/predict", methods=["POST"])
