@@ -35,7 +35,7 @@ def extract_features(rgb):
     # Custom log transformation for greenness (G channel)
     greenness = rgb_scaled[1] * 255  # Green channel in [0,255]
     green_transformed = np.log1p((greenness - GREEN_MIN) / (GREEN_MAX - GREEN_MIN))
-
+    print(f"Extracted features - B: {b_lab}, Hue: {hue_transformed}, Green: {green_transformed}")
     return np.array([[b_lab, hue_transformed, green_transformed]])
 
 # ✅ Health check route
