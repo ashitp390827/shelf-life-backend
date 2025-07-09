@@ -37,8 +37,9 @@ def extract_features(rgb):
     greenness = rgb_scaled[1] * 255  # Green channel in [0,255]
     print(greenness)
     green_transformed = np.log1p(greenness)
+
     print(f"Extracted features - B: {b_lab}, log-Hue: {hue_transformed}, log-Green: {green_transformed}")
-    return np.array([[b_lab, hue_transformed, green_transformed]])
+    return np.array([[b_lab, hue_transformed, greenness]])
 
 # ✅ Health check route
 @app.route("/", methods=["GET"])
@@ -64,7 +65,7 @@ def predict():
         return jsonify({"prediction": int(prediction[0])})
     except Exception as e:
         print("❌ Error during prediction:", str(e))
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": "Internal server error"}), 600
 
 
 # ✅ Run server
