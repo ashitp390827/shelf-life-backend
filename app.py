@@ -13,40 +13,37 @@ CORS(app)
 model = joblib.load("model.pkl")
 scaler = joblib.load("scaler.pkl")
 
-# ✅ Constants for transformations (you provided)
+# ✅ Constants for transformations
 GREEN_MIN = 35.17360876
 GREEN_MAX = 184.3057141
 HUE_MIN = 12.92046354
 HUE_MAX = 56.73791461
 
-# ✅ Feature extraction function with corrected transformations
+# ✅ Feature extraction function
 def extract_features(rgb):
     rgb_scaled = np.array(rgb) / 255.0  # Normalize to [0,1]
-    
+
     hsv = colorsys.rgb_to_hsv(*rgb_scaled)
     lab = rgb2lab(np.reshape(rgb_scaled, (1, 1, 3)))
 
     b_lab = lab[0, 0, 2]  # LAB B channel
 
-    # Custom log transformation for hue
-    hue = hsv[0] * 360  # Hue in degrees
-    print(hue)
+    # Transform hue and green channel using log
+    hue = hsv[0] * 360  # convert hue to degrees
     hue_transformed = np.log1p(hue)
 
-    # Custom log transformation for greenness (G channel)
-    greenness = rgb_scaled[1] * 255  # Green channel in [0,255]
-    print(greenness)
+    greenness = rgb_scaled[1] * 255  # green in 0–255
     green_transformed = np.log1p(greenness)
 
     print(f"Extracted features - B: {b_lab}, log-Hue: {hue_transformed}, log-Green: {green_transformed}")
     return np.array([[b_lab, hue_transformed, greenness]])
 
-# ✅ Health check route
+# ✅ Health check
 @app.route("/", methods=["GET"])
 def home():
     return "✅ Shelf-life predictor backend is running!", 200
 
-# ✅ Prediction endpoint
+# ✅ Prediction with confidence
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
@@ -57,16 +54,24 @@ def predict():
         rgb = data["rgb"]
         features = extract_features(rgb)
         features_scaled = scaler.transform(features)
+
         prediction = model.predict(features_scaled)
+        probabilities = model.predict_proba(features_scaled)
 
-        # Optional: print the scaled input
+        predicted_class = int(prediction[0])
+        confidence = float(np.max(probabilities))  # confidence of predicted class
+
         print(f"Scaled features: {features_scaled}")
+        print(f"Predicted class: {predicted_class}, Confidence: {confidence:.4f}")
 
-        return jsonify({"prediction": int(prediction[0])})
+        return jsonify({
+            "prediction": predicted_class,
+            "confidence": confidence
+        })
+
     except Exception as e:
         print("❌ Error during prediction:", str(e))
         return jsonify({"error": "Internal server error"}), 600
-
 
 # ✅ Run server
 if __name__ == "__main__":
