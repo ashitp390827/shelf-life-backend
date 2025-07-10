@@ -48,30 +48,40 @@ def home():
 def predict():
     try:
         data = request.get_json()
-        if not data or "rgb" not in data:
-            return jsonify({"error": "Missing 'rgb' in request"}), 400
+        if not data or "control_rgb" not in data or "indicator_rgb" not in data:
+            return jsonify({"error": "Missing RGB values in request"}), 400
 
-        rgb = data["rgb"]
-        features = extract_features(rgb)
+        control_rgb = np.array(data["control_rgb"])
+        indicator_rgb = np.array(data["indicator_rgb"])
+        std_rgb = np.array([187, 162, 8])  # your defined standard RGB
+
+        # ✅ Additive correction
+        correction = std_rgb - control_rgb
+        corrected_rgb = np.clip(indicator_rgb + correction, 0, 255)
+
+        print(f"Control RGB: {control_rgb}, Indicator RGB: {indicator_rgb}")
+        print(f"Correction: {correction}, Corrected RGB: {corrected_rgb}")
+
+        # ✅ Feature extraction and prediction
+        features = extract_features(corrected_rgb)
         features_scaled = scaler.transform(features)
 
         prediction = model.predict(features_scaled)
         probabilities = model.predict_proba(features_scaled)
 
         predicted_class = int(prediction[0])
-        confidence = float(np.max(probabilities))  # confidence of predicted class
-
-        print(f"Scaled features: {features_scaled}")
-        print(f"Predicted class: {predicted_class}, Confidence: {confidence:.4f}")
+        confidence = float(np.max(probabilities))
 
         return jsonify({
             "prediction": predicted_class,
-            "confidence": confidence
+            "confidence": confidence,
+            "corrected_rgb": corrected_rgb.tolist()
         })
 
     except Exception as e:
         print("❌ Error during prediction:", str(e))
-        return jsonify({"error": "Internal server error"}), 600
+        return jsonify({"error": "Internal server error"}), 500
+
 
 # ✅ Run server
 if __name__ == "__main__":
