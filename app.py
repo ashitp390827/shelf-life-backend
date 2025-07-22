@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 # ✅ Load model and scaler
-model = joblib.load("logistic_regression_model.joblib")
+model = joblib.load("neural_network_model.joblib")
 
 scaler = joblib.load("standard_scaler.joblib")
 
