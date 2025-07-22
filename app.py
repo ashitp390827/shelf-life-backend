@@ -10,8 +10,8 @@ app = Flask(__name__)
 CORS(app)
 
 # ✅ Load model and scaler
-model = joblib.load("model.pkl")
-scaler = joblib.load("scaler.pkl")
+model = joblib.load("trained_model.joblib")
+scaler = joblib.load("scaler.joblib")
 
 # ✅ Constants for transformations
 GREEN_MIN = 35.17360876
@@ -53,7 +53,7 @@ def predict():
 
         control_rgb = np.array(data["control_rgb"])
         indicator_rgb = np.array(data["indicator_rgb"])
-        std_rgb = np.array([187, 162, 8])  # your defined standard RGB
+        std_rgb = np.array([184, 159, 8])  # your defined standard RGB
 
         # ✅ Additive correction
         correction = std_rgb - control_rgb
