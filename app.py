@@ -10,8 +10,9 @@ app = Flask(__name__)
 CORS(app)
 
 # ✅ Load model and scaler
-model = joblib.load("trained_model.joblib")
-scaler = joblib.load("scaler.joblib")
+model = joblib.load("logistic_regression_model.joblib")
+
+scaler = joblib.load("standard_scaler.joblib")
 
 # ✅ Constants for transformations
 GREEN_MIN = 35.17360876
