@@ -80,12 +80,12 @@ def predict():
         # Select only model-required features for prediction
         model_features = np.array([[feature_dict["b* lab"],
                                     feature_dict["log-Hue"],
-                                    feature_dict["log-Greeness"]]])
+                                    feature_dict["Saturation"]]])
 
         model_features_df = pd.DataFrame([{
             "b* lab": feature_dict["b* lab"],
             "log-Hue": feature_dict["log-Hue"],
-            "a* lab": feature_dict["a* lab"]
+            "Saturation": feature_dict["Saturation"]
         }])
 
         features_scaled = scaler.transform(model_features_df)
