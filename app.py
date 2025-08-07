@@ -83,9 +83,10 @@ def predict():
                                     feature_dict["Saturation"]]])
 
         model_features_df = pd.DataFrame([{
-            "b* lab": feature_dict["b* lab"],
+
             "log-Hue": feature_dict["log-Hue"],
-            "Saturation": feature_dict["Saturation"]
+            "Saturation": feature_dict["Saturation"],
+            "b* lab": feature_dict["b* lab"],
         }])
 
         features_scaled = scaler.transform(model_features_df)
