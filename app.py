@@ -37,8 +37,8 @@ def extract_all_features(rgb):
         "a* lab": a,
         "b* lab": b_lab,
         "Hue": hue_deg,
-        "Saturation": s,
-        "Value": v,
+        "Saturation": s*100,
+        "Value": v*100,
 
         # Log-transformed features
         "log-Redness": np.log1p(r),
